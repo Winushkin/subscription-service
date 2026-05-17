@@ -26,6 +26,9 @@ type Repository interface {
 	// UpdateSubscription обновляет запись о подписке в БД
 	UpdateSubscription(ctx context.Context, id uuid.UUID, req entities.UpdateSubscriptionRequest) (*entities.Subscription, error)
 
+	// DeleteSubscription удаляет запись о подписке из БД
+	DeleteSubscription(ctx context.Context, id uuid.UUID) error
+	
 	// GetSubscriptionsCost возвращает отчет о стоимости подписок по фильтрам
 	GetSubscriptionsCost(ctx context.Context, req entities.CostReportRequest) (*entities.CostReport, error)
 }
