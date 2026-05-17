@@ -1,0 +1,292 @@
+basePath: /api/v1
+definitions:
+  entities.CostReport:
+    properties:
+      count:
+        example: 3
+        type: integer
+      currency:
+        example: RUB
+        type: string
+      total_cost:
+        example: 1200
+        type: integer
+    type: object
+  entities.CostReportRequest:
+    properties:
+      end_date:
+        example: 08-2025
+        type: string
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 06-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - end_date
+    - start_date
+    type: object
+  entities.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        example: 12-2025
+        type: string
+      price:
+        example: 400
+        minimum: 1
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  entities.ErrorResponse:
+    properties:
+      error:
+        example: invalid request body
+        type: string
+    type: object
+  entities.Subscription:
+    properties:
+      created_at:
+        type: string
+      end_date:
+        example: 12-2025
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      price:
+        example: 400
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
+        type: string
+    type: object
+  entities.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        example: 12-2025
+        type: string
+      price:
+        example: 500
+        type: integer
+      service_name:
+        example: Yandex Plus
+        type: string
+      start_date:
+        example: 07-2025
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for user subscriptions aggregation
+  title: Subscriptions API
+  version: "1.0"
+paths:
+  /reports/cost:
+    post:
+      consumes:
+      - application/json
+      description: Calculate total cost of subscriptions for a given period with optional
+        filtering
+      parameters:
+      - description: Report parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CostReportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.CostReport'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Calculate cost report
+      tags:
+      - reports
+  /subscriptions:
+    get:
+      description: Get a paginated list of subscriptions with optional filtering by
+        user ID
+      parameters:
+      - description: Filter by user ID
+        format: uuid
+        in: query
+        name: user_id
+        type: string
+      - default: 10
+        description: Number of records to return
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Number of records to skip
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Subscription'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: List subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription record for a user
+      parameters:
+      - description: Subscription data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Subscription'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Create a new subscription
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Delete a subscription by its ID
+      parameters:
+      - description: Subscription ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Subscription deleted successfully
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Delete subscription
+      tags:
+      - subscriptions
+    get:
+      description: Retrieve a specific subscription by its ID
+      parameters:
+      - description: Subscription ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Subscription'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Get subscription by ID
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription (partial update supported)
+      parameters:
+      - description: Subscription ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Fields to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Subscription'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "404":
+          description: Subscription not found
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
+      summary: Update subscription
+      tags:
+      - subscriptions
+swagger: "2.0"
