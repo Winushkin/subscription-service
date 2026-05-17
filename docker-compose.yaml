@@ -1,32 +1,41 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:17
     container_name: subscriptions_postgres
     env_file:
-      - ../configs/.env
+      - .env
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./pgdata/subscriptions_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U postgres -d subs"]
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - app-network
 
   app:
-    build: .
-    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: subscriptions_app
     depends_on:
       postgres:
         condition: service_healthy
     env_file:
-      - ../configs/.env
+      - .env
     ports:
       - "8080:8080"
+    networks:
+      - app-network
+    restart: on-failure
 
+networks:
+  app-network:
+    driver: bridge
+ 
 volumes:
   postgres_data:
