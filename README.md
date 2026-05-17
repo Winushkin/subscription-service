@@ -1,1 +1,1 @@
-# em-test-task-golang
+# subscription-service test task
