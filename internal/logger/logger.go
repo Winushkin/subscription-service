@@ -98,6 +98,7 @@ func (l *Logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
 	l.l.Error(msg, fields...)
 }
 
+
 func (l *Logger) Debug(ctx context.Context, msg string, fields ...zap.Field) {
 	if l == nil || l.l == nil {
 		return

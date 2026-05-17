@@ -24,13 +24,15 @@ func New(repository repository.Repository) *Handler {
 
 // CreateSubscription godoc
 // @Summary Create a new subscription
-// @Description Create a new subscription record
+// @Description Create a new subscription record for a user
 // @Tags subscriptions
 // @Accept json
 // @Produce json
-// @Param request body entities.CreateSubscriptionRequest true "Subscription request"
+// @Param request body entities.CreateSubscriptionRequest true "Subscription data"
 // @Success 201 {object} entities.Subscription
-// @Failure 400 {object} map[string]string
+// @Failure 400 {object} entities.ErrorResponse "Invalid request"
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
+// @Example subscription_create_request.json
 // @Router /subscriptions [post]
 func (h *Handler) CreateSubscription(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
@@ -38,6 +40,8 @@ func (h *Handler) CreateSubscription(c *gin.Context) {
 		c.Status(http.StatusInternalServerError)
 		return
 	}
+
+	log.Debug(c.Request.Context(), "create handler")
 
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 	defer cancel()
@@ -62,12 +66,13 @@ func (h *Handler) CreateSubscription(c *gin.Context) {
 
 // GetSubscription godoc
 // @Summary Get subscription by ID
-// @Description Get a subscription by its ID
+// @Description Retrieve a specific subscription by its ID
 // @Tags subscriptions
 // @Produce json
-// @Param id path string true "Subscription ID"
+// @Param id path string true "Subscription ID" Format(uuid)
 // @Success 200 {object} entities.Subscription
-// @Failure 404 {object} map[string]string
+// @Failure 404 {object} entities.ErrorResponse "Subscription not found"
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [get]
 func (h *Handler) GetSubscription(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
@@ -104,13 +109,14 @@ func (h *Handler) GetSubscription(c *gin.Context) {
 
 // ListSubscriptions godoc
 // @Summary List subscriptions
-// @Description Get a list of subscriptions with pagination and optional filtering
+// @Description Get a paginated list of subscriptions with optional filtering by user ID
 // @Tags subscriptions
 // @Produce json
-// @Param user_id query string false "Filter by user ID"
-// @Param limit query int false "Limit (default: 10)"
-// @Param offset query int false "Offset (default: 0)"
+// @Param user_id query string false "Filter by user ID" Format(uuid)
+// @Param limit query int false "Number of records to return" default(10)
+// @Param offset query int false "Number of records to skip" default(0)
 // @Success 200 {array} entities.Subscription
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /subscriptions [get]
 func (h *Handler) ListSubscriptions(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
@@ -152,15 +158,16 @@ func (h *Handler) ListSubscriptions(c *gin.Context) {
 
 // UpdateSubscription godoc
 // @Summary Update subscription
-// @Description Update an existing subscription
+// @Description Update an existing subscription (partial update supported)
 // @Tags subscriptions
 // @Accept json
 // @Produce json
-// @Param id path string true "Subscription ID"
-// @Param request body entities.UpdateSubscriptionRequest true "Update request"
+// @Param id path string true "Subscription ID" Format(uuid)
+// @Param request body entities.UpdateSubscriptionRequest true "Fields to update"
 // @Success 200 {object} entities.Subscription
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Failure 400 {object} entities.ErrorResponse "Invalid request"
+// @Failure 404 {object} entities.ErrorResponse "Subscription not found"
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [put]
 func (h *Handler) UpdateSubscription(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
@@ -207,9 +214,9 @@ func (h *Handler) UpdateSubscription(c *gin.Context) {
 // @Summary Delete subscription
 // @Description Delete a subscription by its ID
 // @Tags subscriptions
-// @Param id path string true "Subscription ID"
-// @Success 204
-// @Failure 404 {object} map[string]string
+// @Param id path string true "Subscription ID" Format(uuid)
+// @Success 204 "Subscription deleted successfully"
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /subscriptions/{id} [delete]
 func (h *Handler) DeleteSubscription(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
@@ -237,15 +244,17 @@ func (h *Handler) DeleteSubscription(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+
 // CalculateCostReport godoc
 // @Summary Calculate cost report
-// @Description Calculate total cost for subscriptions in a period
+// @Description Calculate total cost of subscriptions for a given period with optional filtering
 // @Tags reports
 // @Accept json
 // @Produce json
-// @Param request body entities.CostReportRequest true "Report request"
+// @Param request body entities.CostReportRequest true "Report parameters"
 // @Success 200 {object} entities.CostReport
-// @Failure 400 {object} map[string]string
+// @Failure 400 {object} entities.ErrorResponse "Invalid request"
+// @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /reports/cost [post]
 func (h *Handler) CalculateCostReport(c *gin.Context) {
 	log, ok := logger.GetLoggerFromCtx(c.Request.Context())
