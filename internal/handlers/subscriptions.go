@@ -5,11 +5,13 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"errors"
 
 	"subscription-service/internal/entities"
 	"subscription-service/internal/logger"
 	"subscription-service/internal/repository"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -86,7 +88,7 @@ func (h *Handler) GetSubscription(c *gin.Context) {
 
 	id, err := getUUIDParam(c, "id")
 	if err != nil {
-		log.Error(ctx, "get subscriptions", zap.Error(err))
+		log.Warn(ctx, "get subscriptions", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -116,6 +118,7 @@ func (h *Handler) GetSubscription(c *gin.Context) {
 // @Param limit query int false "Number of records to return" default(10)
 // @Param offset query int false "Number of records to skip" default(0)
 // @Success 200 {array} entities.Subscription
+// @Failure 400 {object} entities.ErrorResponse "Invalid request"
 // @Failure 500 {object} entities.ErrorResponse "Internal server error"
 // @Router /subscriptions [get]
 func (h *Handler) ListSubscriptions(c *gin.Context) {
@@ -195,6 +198,11 @@ func (h *Handler) UpdateSubscription(c *gin.Context) {
 
 	sub, err := h.repo.UpdateSubscription(ctx, id, req)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows){
+			log.Error(c.Request.Context(), "Subs not found")
+			c.JSON(http.StatusNotFound, gin.H{"error": notFoundError})
+			return
+		}
 		log.Error(c.Request.Context(), "failed to update subscription", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": internalError})
 		return

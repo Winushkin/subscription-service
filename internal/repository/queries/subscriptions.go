@@ -25,11 +25,6 @@ const (
 // psql - это экземпляр StatementBuilder, настроенный на использование формата плейсхолдеров для PostgreSQL.
 var psql = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
-// Exists возвращает pапрос на проверку наличия сущности пива по id
-// func Exists(id uint) sq.SelectBuilder {
-// 	return psql.Select("id").From(beersTable).Where(sq.Eq{"id": id})
-// }
-
 func columnList() string {
 	return fmt.Sprintf(
 		"%s, %s, %s, %s, %s, %s, %s",
@@ -43,8 +38,8 @@ func columnList() string {
 	)
 }
 
-// FullSubSelect возвращает базовый запрос для получения полной информации о пиве, включая его характеристики, город и страну производства, категорию и особенности.
-func FullSubSelect() sq.SelectBuilder {
+// FullSubscriptionSelect возвращает базовый запрос для получения полной информации о пиве, включая его характеристики, город и страну производства, категорию и особенности.
+func FullSubscriptionSelect() sq.SelectBuilder {
 	return psql.Select(
 		subID,
 		serviceName,
@@ -73,28 +68,26 @@ func InsertSubscription(sub entities.CreateSubscriptionRequest) sq.InsertBuilder
 }
 
 func SelectSubByID(id uuid.UUID) sq.SelectBuilder {
-	return FullSubSelect().Where(sq.Eq{subID: id})
+	return FullSubscriptionSelect().Where(sq.Eq{subID: id})
 }
 
 func UpdateSubscription(id uuid.UUID, req entities.UpdateSubscriptionRequest) sq.UpdateBuilder {
-	updates := make(map[string]any)
+	query := psql.Update(subTable)
 
 	if req.ServiceName != nil {
-		updates[serviceName] = req.ServiceName
+		query = query.Set(serviceName, *req.ServiceName)
 	}
 	if req.Price != nil {
-		updates[price] = req.Price
+		query = query.Set(price, *req.Price)
 	}
 	if req.StartDate != nil {
-		updates[startDate] = req.StartDate
+		query = query.Set(startDate, *req.StartDate)
 	}
 	if req.EndDate != nil {
-		updates[endDate] = req.EndDate
+		query = query.Set(endDate, *req.EndDate)
 	}
 
-	return psql.Update(subTable).
-		SetMap(updates).
-		Where(sq.Eq{subID: id})
+	return query.Where(sq.Eq{subID: id})
 }
 
 func DeleteSubscription(id uuid.UUID) sq.DeleteBuilder {

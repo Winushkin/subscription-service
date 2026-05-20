@@ -77,7 +77,7 @@ func (p *Postgres) GetSubscription(ctx context.Context, id uuid.UUID) (*entities
 }
 
 func (p *Postgres) ListSubscriptions(ctx context.Context, userID uuid.UUID, limit, offset uint64) ([]entities.Subscription, error) {
-	psql := queries.FullSubSelect().Offset(offset)
+	psql := queries.FullSubscriptionSelect().Offset(offset)
 	if limit != 0 {
 		psql = psql.Limit(limit)
 	}
@@ -119,6 +119,9 @@ func (p *Postgres) UpdateSubscription(ctx context.Context, id uuid.UUID, req ent
 
 	row := p.pool.QueryRow(ctx, query, args...)
 	createdSub, err := scanSub(row)
+	if err == pgx.ErrNoRows {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to update subscription: %w ", err)

@@ -1,4 +1,4 @@
-//Package config хранит в себе конфигурацию приложения
+// Package config хранит в себе конфигурацию приложения
 package config
 
 import (
@@ -6,7 +6,6 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
-
 
 // AppConfig содержит конфигурационные переменные приложения.
 type AppConfig struct {
