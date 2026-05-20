@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 
+	_ "subscription-service/docs"
 	"subscription-service/internal/config"
 	"subscription-service/internal/handlers"
 	"subscription-service/internal/logger"
 	"subscription-service/internal/repository"
 	"subscription-service/internal/storage"
+	"subscription-service/migrator"
 
 	"github.com/gin-contrib/graceful"
 	"github.com/gin-gonic/gin"
@@ -50,6 +52,11 @@ func main() {
 		panic(err)
 	}
 	defer pool.Close()
+
+	if err = migrator.Up(pool); err != nil {
+		panic(fmt.Errorf("failed to run migrations: %w", err))
+	}
+	log.Debug(ctx, "migrations Upped")
 
 	log.Info(ctx, "Connected to database")
 	repo := repository.NewRepository(pool)

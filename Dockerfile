@@ -1,27 +1,37 @@
+# 1. Этап сборки
 FROM golang:1.26-alpine AS builder
 
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
+# Устанавливаем swag (если он не установлен в базовом образе)
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
+WORKDIR /app
+
+# Копируем файлы зависимостей
+COPY go.mod go.sum ./
+
+# Скачиваем зависимости с кэшированием
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
+
+# --- ИСПРАВЛЕНИЕ: Сначала копируем весь код ---
 COPY . .
 
-# Generate swagger docs (или пропустить если нет)
-RUN go install github.com/swaggo/swag/cmd/swag@latest || true
-RUN swag init -g cmd/main.go || true
+# --- ИСПРАВЛЕНИЕ: Теперь генерируем документацию ---
+# Убираем `|| true`, чтобы в случае ошибки генерации сборка упала и указала на проблему
+RUN swag init -g cmd/main.go
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o app ./cmd
+# Собираем бинарник
+RUN CGO_ENABLED=0 go build -o myapp ./cmd
 
+# 2. Этап запуска
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
-
 WORKDIR /app
+COPY --from=builder /app/myapp .
+COPY --from=builder /app/docs ./docs
 
-COPY --from=builder /app/app .
-
+# Документируем порт, который использует ваше приложение (например, 8080)
 EXPOSE 8080
 
-CMD ["./app"]
-
-
+CMD ["./myapp"]
