@@ -100,7 +100,7 @@ definitions:
         example: 07-2025
         type: string
     type: object
-host: localhost:8080
+host: localhost:80
 info:
   contact: {}
   description: REST API for user subscriptions aggregation
@@ -167,6 +167,10 @@ paths:
             items:
               $ref: '#/definitions/entities.Subscription'
             type: array
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/entities.ErrorResponse'
         "500":
           description: Internal server error
           schema:

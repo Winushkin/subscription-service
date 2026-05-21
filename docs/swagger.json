@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "localhost:80",
     "basePath": "/api/v1",
     "paths": {
         "/reports/cost": {
@@ -96,6 +96,12 @@
                             "items": {
                                 "$ref": "#/definitions/entities.Subscription"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ErrorResponse"
                         }
                     },
                     "500": {

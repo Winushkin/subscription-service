@@ -27,7 +27,7 @@ const devMode = true
 // @title Subscriptions API
 // @version 1.0
 // @description REST API for user subscriptions aggregation
-// @host localhost:8080
+// @host localhost:80
 // @BasePath /api/v1
 func main() {
 	ctx, err := logger.NewLoggerContext(context.Background(), devMode)
