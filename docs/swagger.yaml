@@ -100,7 +100,7 @@ definitions:
         example: 07-2025
         type: string
     type: object
-host: localhost:80
+host: 176.109.111.106
 info:
   contact: {}
   description: REST API for user subscriptions aggregation

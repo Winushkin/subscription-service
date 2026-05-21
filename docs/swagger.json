@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:80",
+    "host": "176.109.111.106",
     "basePath": "/api/v1",
     "paths": {
         "/reports/cost": {
