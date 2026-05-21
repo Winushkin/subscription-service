@@ -15,13 +15,13 @@ cp .env.example .env
 # Запусти с помощью Docker Compose
 make buildup
 
-# Приложение будет доступно на http://localhost:8080
+# Приложение будет доступно на http://localhost
 ```
 
 ### Проверка здоровья сервиса
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost/health
 # Ответ: {"status":"ok"}
 ```
 
@@ -42,7 +42,7 @@ http://localhost:8080/swagger/index.html
 #### 1. Создание подписки
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/subscriptions \
+curl -X POST http://localhost/api/v1/subscriptions \
   -H "Content-Type: application/json" \
   -d '{
     "service_name": "Yandex Plus",
@@ -69,17 +69,17 @@ curl -X POST http://localhost:8080/api/v1/subscriptions \
 #### 2. Получение подписки
 
 ```bash
-curl http://localhost:8080/api/v1/subscriptions/{id}
+curl http://localhost/api/v1/subscriptions/{id}
 ```
 
 #### 3. Список подписок
 
 ```bash
 # Все подписки
-curl http://localhost:8080/api/v1/subscriptions
+curl http://localhost/api/v1/subscriptions
 
 # С фильтром по пользователю
-curl "http://localhost:8080/api/v1/subscriptions?user_id=60601fee-2bf1-4721-ae6f-7636e79a0cba"
+curl "http://localhost/api/v1/subscriptions?user_id=60601fee-2bf1-4721-ae6f-7636e79a0cba"
 
 # С пагинацией
 curl "http://localhost:8080/api/v1/subscriptions?limit=10&offset=0"
@@ -88,7 +88,7 @@ curl "http://localhost:8080/api/v1/subscriptions?limit=10&offset=0"
 #### 4. Обновление подписки
 
 ```bash
-curl -X PUT http://localhost:8080/api/v1/subscriptions/{id} \
+curl -X PUT http://localhost/api/v1/subscriptions/{id} \
   -H "Content-Type: application/json" \
   -d '{
     "price": 500,
@@ -99,14 +99,14 @@ curl -X PUT http://localhost:8080/api/v1/subscriptions/{id} \
 #### 5. Удаление подписки
 
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/subscriptions/{id}
+curl -X DELETE http://localhost/api/v1/subscriptions/{id}
 # Ответ: 204 No Content
 ```
 
 #### 6. Расчёт стоимости за период
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/reports/cost \
+curl -X POST http://localhost/api/v1/reports/cost \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": "60601fee-2bf1-4721-ae6f-7636e79a0cba",
