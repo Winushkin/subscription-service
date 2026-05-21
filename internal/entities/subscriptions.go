@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Subscription represents a user subscription record
+// Subscription - запись о подписке пользовтаеля
 type Subscription struct {
 	ID          string    `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
 	ServiceName string    `json:"service_name" example:"Yandex Plus"`
@@ -17,7 +17,7 @@ type Subscription struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// CreateSubscriptionRequest represents request body for creating a subscription
+// CreateSubscriptionRequest - запрос на создание подписки пользователя
 type CreateSubscriptionRequest struct {
 	ServiceName string  `json:"service_name" binding:"required" example:"Yandex Plus"`
 	Price       int     `json:"price" binding:"required,min=1" example:"400"`
@@ -26,7 +26,7 @@ type CreateSubscriptionRequest struct {
 	EndDate     *string `json:"end_date,omitempty" example:"12-2025"`
 }
 
-// UpdateSubscriptionRequest represents request body for updating a subscription
+// UpdateSubscriptionRequest - запрос на обновление подписки пользователя
 type UpdateSubscriptionRequest struct {
 	ServiceName *string `json:"service_name,omitempty" example:"Yandex Plus"`
 	Price       *int    `json:"price,omitempty" example:"500"`
@@ -34,7 +34,7 @@ type UpdateSubscriptionRequest struct {
 	EndDate     *string `json:"end_date,omitempty" example:"12-2025"`
 }
 
-// CostReportRequest represents request body for calculating cost report
+// CostReportRequest - запрос на отчет по суммарной стоимости подписок пользователя
 type CostReportRequest struct {
 	UserID      string `json:"user_id" example:"60601fee-2bf1-4721-ae6f-7636e79a0cba"`
 	ServiceName string `json:"service_name" example:"Yandex Plus"`
@@ -42,14 +42,14 @@ type CostReportRequest struct {
 	EndDate     string `json:"end_date" binding:"required" example:"08-2025"`
 }
 
-// CostReport represents the response with cost calculation
+// CostReport - отчет по суммарной стоимости подписок пользователя
 type CostReport struct {
 	TotalCost int    `json:"total_cost" example:"1200"`
 	Count     int    `json:"count" example:"3"`
 	Currency  string `json:"currency" example:"RUB"`
 }
 
-// ErrorResponse represents error response
+// ErrorResponse - ответ возвращаемой ошибки
 type ErrorResponse struct {
 	Error string `json:"error" example:"invalid request body"`
 }

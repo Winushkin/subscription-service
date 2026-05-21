@@ -8,6 +8,7 @@ import (
 	"subscription-service/migrator"
 )
 
+// скрипт для очистки бд
 func main(){
 	ctx := context.Background()
 	cfg, err := config.NewAppConfig()

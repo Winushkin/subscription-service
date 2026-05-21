@@ -27,7 +27,7 @@ const devMode = true
 // @title Subscriptions API
 // @version 1.0
 // @description REST API for user subscriptions aggregation
-// @host 176.109.111.106
+// @host localhost
 // @BasePath /api/v1
 func main() {
 	ctx, err := logger.NewLoggerContext(context.Background(), devMode)
@@ -45,7 +45,6 @@ func main() {
 	}
 	log.Info(ctx, "Starting application", zap.String("port", cfg.ServerPort))
 
-	// Init database
 	pool, err := storage.NewPool(ctx, cfg.PostgresConfig)
 	if err != nil {
 		log.Error(ctx, "Failed to connect to database", zap.Error(err))
