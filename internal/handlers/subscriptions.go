@@ -3,16 +3,17 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
-	"errors"
 
 	"subscription-service/internal/entities"
 	"subscription-service/internal/logger"
 	"subscription-service/internal/repository"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -92,6 +93,7 @@ func (h *Handler) GetSubscription(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Debug(ctx, "req", zap.Any("uuid", id))
 
 	sub, err := h.repo.GetSubscription(ctx, id)
 	if err != nil {
@@ -131,7 +133,9 @@ func (h *Handler) ListSubscriptions(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*1e9)
 	defer cancel()
 
-	userID, err := getUUIDParam(c, "user_id")
+	
+	
+	userID, err := uuid.Parse(c.Query("user_id") )
 	if err != nil {
 		log.Error(ctx, "get subscriptions", zap.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

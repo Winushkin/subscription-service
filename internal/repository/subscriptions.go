@@ -20,7 +20,7 @@ type Repository interface {
 	// GetSubscription возвращает объект entities.Subscription по id
 	GetSubscription(ctx context.Context, id uuid.UUID) (*entities.Subscription, error)
 
-	// GetSubscription возвращает слайс объектов entities.Subscription по id пользователя
+	// ListSubscriptions возвращает слайс объектов entities.Subscription по id пользователя
 	ListSubscriptions(ctx context.Context, userID uuid.UUID, limit, offset uint64) ([]entities.Subscription, error)
 
 	// UpdateSubscription обновляет запись о подписке в БД
@@ -176,6 +176,7 @@ func scanSub(row pgx.Row) (*entities.Subscription, error) {
 		&sub.ID,
 		&sub.ServiceName,
 		&sub.Price,
+		&sub.UserID,
 		&sub.StartDate,
 		&sub.EndDate,
 		&sub.CreatedAt,

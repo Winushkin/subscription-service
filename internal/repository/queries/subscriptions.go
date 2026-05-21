@@ -27,10 +27,11 @@ var psql = sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 func columnList() string {
 	return fmt.Sprintf(
-		"%s, %s, %s, %s, %s, %s, %s",
+		"%s, %s, %s, %s, %s, %s, %s, %s",
 		subID,
 		serviceName,
 		price,
+		userID,
 		startDate,
 		endDate,
 		createdAt,
@@ -44,6 +45,7 @@ func FullSubscriptionSelect() sq.SelectBuilder {
 		subID,
 		serviceName,
 		price,
+		userID,
 		startDate,
 		endDate,
 		createdAt,
@@ -68,7 +70,11 @@ func InsertSubscription(sub entities.CreateSubscriptionRequest) sq.InsertBuilder
 }
 
 func SelectSubByID(id uuid.UUID) sq.SelectBuilder {
-	return FullSubscriptionSelect().Where(sq.Eq{subID: id})
+	query := FullSubscriptionSelect()
+	if id.String() != "00000000-0000-0000-0000-000000000000" {
+		query = query.Where(sq.Eq{subID: id})
+	}
+	return query
 }
 
 func UpdateSubscription(id uuid.UUID, req entities.UpdateSubscriptionRequest) sq.UpdateBuilder {
@@ -96,20 +102,19 @@ func DeleteSubscription(id uuid.UUID) sq.DeleteBuilder {
 		Where(sq.Eq{subID: id})
 }
 
-
-func SelectSubscriptionsCost(req entities.CostReportRequest) sq.SelectBuilder{
-	sumSelection := fmt.Sprintf("SUM(%s)", price)
+func SelectSubscriptionsCost(req entities.CostReportRequest) sq.SelectBuilder {
+	sumSelection := fmt.Sprintf("COALESCE(SUM(%s), 0)", price)
 	query := psql.Select(sumSelection).From(subTable)
 
-	if req.ServiceName != ""{
+	if req.ServiceName != "" {
 		query = query.Where(sq.Eq{serviceName: req.ServiceName})
 	}
-	if req.StartDate != ""{
+	if req.StartDate != "" {
 		query = query.Where(sq.LtOrEq{startDate: req.StartDate})
 	}
-	if req.EndDate != ""{
+	if req.EndDate != "" {
 		query = query.Where(sq.GtOrEq{endDate: req.EndDate})
 	}
-	
+
 	return query
 }

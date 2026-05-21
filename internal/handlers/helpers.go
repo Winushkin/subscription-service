@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const(
+const (
 	// defaultOffset это дефолтное значение для смещения при пагинации.
 	defaultOffset = 0
 
@@ -19,7 +19,6 @@ const(
 	maxLimit = 100
 )
 
-
 // getUintParam извлекает и валидирует целочисленный ненулевой параметр из URL, например id.
 func getUUIDParam(c *gin.Context, name string) (uuid.UUID, error) {
 	var UUIDParam uuid.UUID
@@ -28,7 +27,7 @@ func getUUIDParam(c *gin.Context, name string) (uuid.UUID, error) {
 	if stringUUID == "" {
 		return UUIDParam, nil
 	}
-	
+
 	UUIDParam, err := uuid.Parse(stringUUID)
 	return UUIDParam, err
 }
@@ -60,5 +59,5 @@ func getPaginationParams(c *gin.Context) (uint64, uint64, error) {
 		limit = parsedLimit
 	}
 
-	return uint64(offset), uint64(limit), nil
+	return uint64(limit), uint64(offset), nil
 }
