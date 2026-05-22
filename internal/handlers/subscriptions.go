@@ -203,7 +203,6 @@ func (h *Handler) UpdateSubscription(c *gin.Context) {
 	sub, err := h.repo.UpdateSubscription(ctx, id, req)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows){
-			log.Error(c.Request.Context(), "Subs not found")
 			c.JSON(http.StatusNotFound, gin.H{"error": notFoundError})
 			return
 		}

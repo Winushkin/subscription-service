@@ -41,16 +41,7 @@ func columnList() string {
 
 // FullSubscriptionSelect возвращает базовый запрос для получения полной информации о пиве, включая его характеристики, город и страну производства, категорию и особенности.
 func FullSubscriptionSelect() sq.SelectBuilder {
-	return psql.Select(
-		subID,
-		serviceName,
-		price,
-		userID,
-		startDate,
-		endDate,
-		createdAt,
-		updatedAt,
-	).From(subTable)
+	return psql.Select(columnList()).From(subTable)
 }
 
 // InsertSubscription возвращает запрос для вставки нового отзыва в таблицу reviews и возвращает ID вставленного отзыва.
@@ -93,7 +84,7 @@ func UpdateSubscription(id uuid.UUID, req entities.UpdateSubscriptionRequest) sq
 		query = query.Set(endDate, *req.EndDate)
 	}
 
-	return query.Where(sq.Eq{subID: id})
+	return query.Where(sq.Eq{subID: id}).Suffix("RETURNING " + columnList())
 }
 
 func DeleteSubscription(id uuid.UUID) sq.DeleteBuilder {
@@ -104,16 +95,17 @@ func DeleteSubscription(id uuid.UUID) sq.DeleteBuilder {
 
 func SelectSubscriptionsCost(req entities.CostReportRequest) sq.SelectBuilder {
 	sumSelection := fmt.Sprintf("COALESCE(SUM(%s), 0)", price)
-	query := psql.Select(sumSelection).From(subTable)
+	countSelection := fmt.Sprintf("COUNT(%s)", subID)
+	query := psql.Select(sumSelection, countSelection).From(subTable)
 
 	if req.ServiceName != "" {
 		query = query.Where(sq.Eq{serviceName: req.ServiceName})
 	}
 	if req.StartDate != "" {
-		query = query.Where(sq.LtOrEq{startDate: req.StartDate})
+		query = query.Where(sq.LtOrEq{startDate: req.EndDate})
 	}
 	if req.EndDate != "" {
-		query = query.Where(sq.GtOrEq{endDate: req.EndDate})
+		query = query.Where(sq.GtOrEq{endDate: req.StartDate})
 	}
 
 	return query

@@ -117,8 +117,12 @@ func (p *Postgres) UpdateSubscription(ctx context.Context, id uuid.UUID, req ent
 		return nil, fmt.Errorf("toSql: %w", err)
 	}
 
+	fmt.Println(id)
+	fmt.Println(query)
+
 	row := p.pool.QueryRow(ctx, query, args...)
-	createdSub, err := scanSub(row)
+	patchedSub, err := scanSub(row)
+	fmt.Println(patchedSub)
 	if err == pgx.ErrNoRows {
 		return nil, err
 	}
@@ -126,7 +130,7 @@ func (p *Postgres) UpdateSubscription(ctx context.Context, id uuid.UUID, req ent
 	if err != nil {
 		return nil, fmt.Errorf("failed to update subscription: %w ", err)
 	}
-	return createdSub, nil
+	return patchedSub, nil
 }
 
 func (p *Postgres) DeleteSubscription(ctx context.Context, id uuid.UUID) error {
@@ -155,14 +159,15 @@ func (p *Postgres) GetSubscriptionsCost(ctx context.Context, req entities.CostRe
 		return nil, fmt.Errorf("%s: %w", "toSql", err)
 	}
 
-	var cost int
-	err = p.pool.QueryRow(ctx, query, args...).Scan(&cost)
+	var cost, amount int
+	err = p.pool.QueryRow(ctx, query, args...).Scan(&cost, &amount)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "exec", err)
 	}
 
 	report := &entities.CostReport{
 		TotalCost: cost,
+		Count: amount,
 		Currency:  currency,
 	}
 
