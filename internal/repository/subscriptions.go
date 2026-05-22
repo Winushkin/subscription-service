@@ -28,7 +28,7 @@ type Repository interface {
 
 	// DeleteSubscription удаляет запись о подписке из БД
 	DeleteSubscription(ctx context.Context, id uuid.UUID) error
-	
+
 	// GetSubscriptionsCost возвращает отчет о стоимости подписок по фильтрам
 	GetSubscriptionsCost(ctx context.Context, req entities.CostReportRequest) (*entities.CostReport, error)
 }
@@ -122,7 +122,6 @@ func (p *Postgres) UpdateSubscription(ctx context.Context, id uuid.UUID, req ent
 
 	row := p.pool.QueryRow(ctx, query, args...)
 	patchedSub, err := scanSub(row)
-	fmt.Println(patchedSub)
 	if err == pgx.ErrNoRows {
 		return nil, err
 	}
@@ -167,7 +166,7 @@ func (p *Postgres) GetSubscriptionsCost(ctx context.Context, req entities.CostRe
 
 	report := &entities.CostReport{
 		TotalCost: cost,
-		Count: amount,
+		Count:     amount,
 		Currency:  currency,
 	}
 
